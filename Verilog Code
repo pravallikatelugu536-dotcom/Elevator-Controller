@@ -1,0 +1,133 @@
+module elevator_controller (
+    input  wire       clk,
+    input  wire       reset,
+
+    input  wire [1:0] request,
+    input  wire       req_valid,
+
+    output reg        motor_up,
+    output reg        motor_down,
+    output reg        door_open,
+
+    output reg [1:0]  floor
+);
+
+    // States
+    localparam IDLE      = 2'b00;
+    localparam UP        = 2'b01;
+    localparam DOWN      = 2'b10;
+    localparam DOOR_OPEN = 2'b11;
+
+    reg [1:0] state;
+
+    always @(posedge clk or posedge reset) begin
+
+        if (reset) begin
+            floor      <= 2'b00; // Floor 1
+            state      <= IDLE;
+
+            motor_up   <= 1'b0;
+            motor_down <= 1'b0;
+            door_open  <= 1'b0;
+        end
+
+        else begin
+
+            case (state)
+
+                // -------------------------
+                // IDLE STATE
+                // -------------------------
+                IDLE: begin
+
+                    motor_up   <= 1'b0;
+                    motor_down <= 1'b0;
+                    door_open  <= 1'b0;
+
+                    if (req_valid) begin
+
+                        if (request > floor) begin
+                            state <= UP;
+                        end
+
+                        else if (request < floor) begin
+                            state <= DOWN;
+                        end
+
+                        else begin
+                            state <= DOOR_OPEN;
+                        end
+
+                    end
+
+                end
+
+                // -------------------------
+                // MOVE UP
+                // -------------------------
+                UP: begin
+
+                    motor_up   <= 1'b1;
+                    motor_down <= 1'b0;
+                    door_open  <= 1'b0;
+
+                    if (floor < request) begin
+                        floor <= floor + 1'b1;
+                    end
+
+                    else begin
+                        motor_up <= 1'b0;
+                        state <= DOOR_OPEN;
+                    end
+
+                end
+
+                // -------------------------
+                // MOVE DOWN
+                // -------------------------
+                DOWN: begin
+
+                    motor_up   <= 1'b0;
+                    motor_down <= 1'b1;
+                    door_open  <= 1'b0;
+
+                    if (floor > request) begin
+                        floor <= floor - 1'b1;
+                    end
+
+                    else begin
+                        motor_down <= 1'b0;
+                        state <= DOOR_OPEN;
+                    end
+
+                end
+
+                // -------------------------
+                // DOOR OPEN
+                // -------------------------
+                DOOR_OPEN: begin
+
+                    motor_up   <= 1'b0;
+                    motor_down <= 1'b0;
+                    door_open  <= 1'b1;
+
+                    state <= IDLE;
+
+                end
+
+                default: begin
+
+                    state      <= IDLE;
+                    motor_up   <= 1'b0;
+                    motor_down <= 1'b0;
+                    door_open  <= 1'b0;
+
+                end
+
+            endcase
+
+        end
+
+    end
+
+endmodule

@@ -1,0 +1,77 @@
+# Elevator Controller using Verilog
+
+## Description
+
+This project implements a 4-floor elevator controller using Verilog HDL.
+
+The elevator can move between four floors:
+
+    Floor 1
+    Floor 2
+    Floor 3
+    Floor 4
+
+The controller receives floor requests and moves the elevator
+to the requested floor.
+
+## Inputs
+
+    clk       : Clock signal
+    reset     : Active-high reset
+    request   : Requested floor (2-bit)
+    req_valid : Indicates a valid floor request
+
+## Outputs
+
+    motor_up   : Elevator moves upward
+    motor_down : Elevator moves downward
+    door_open  : Door open indicator
+    floor      : Current floor
+
+## Floor Encoding
+
+    2'b00 = Floor 1
+    2'b01 = Floor 2
+    2'b10 = Floor 3
+    2'b11 = Floor 4
+
+## Operation
+
+Example:
+
+    Current floor = 1
+    Request       = 3
+
+The elevator moves:
+
+    Floor 1 -> Floor 2 -> Floor 3
+
+Then the door opens.
+
+## FSM States
+
+    IDLE
+    UP
+    DOWN
+    DOOR_OPEN
+
+## Files
+
+    elevator_controller.v
+        Main elevator controller.
+
+    tb_elevator_controller.v
+        Testbench.
+
+    README.md
+        Project documentation.
+
+## Simulation
+
+Compile:
+
+    iverilog -o elevator_tb elevator_controller.v tb_elevator_controller.v
+
+Run:
+
+    vvp elevator_tb
